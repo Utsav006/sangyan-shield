@@ -1,338 +1,262 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/SANGYAN-Hackathon%202026-blueviolet?style=for-the-badge" alt="SANGYAN Hackathon 2026" />
-  <img src="https://img.shields.io/badge/License-Non--Commercial-orange?style=for-the-badge" alt="Non-Commercial" />
-  <img src="https://img.shields.io/badge/Privacy-Zero%20Data%20Stored-brightgreen?style=for-the-badge" alt="Zero Data Stored" />
+  <img src="frontend/public/favicon.svg" width="80" alt="Sangyan Shield Logo" />
 </p>
 
-<h1 align="center">🛡️ Sangyan Shield</h1>
-<h3 align="center"><em>"For the moment you can't copy-paste."</em></h3>
+<h1 align="center">Sangyan Shield 🛡️</h1>
 
 <p align="center">
-  A bilingual (Hindi + English) scam-detection assistant that helps retail investors in India's Tier-2 and Tier-3 cities identify investment fraud — <strong>before</strong> they send money.
+  <strong><em>"For the moment you can't copy-paste."</em></strong>
+</p>
+
+<p align="center">
+  Built for the <strong>SANGYAN Investor Resilience Hackathon</strong>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white" alt="Python" />
+  <img src="https://img.shields.io/badge/Flask-3.x-000000?logo=flask&logoColor=white" alt="Flask" />
+  <img src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black" alt="React" />
+  <img src="https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white" alt="Vite" />
+  <img src="https://img.shields.io/badge/PWA-Enabled-5A0FC8?logo=pwa&logoColor=white" alt="PWA" />
+  <img src="https://img.shields.io/badge/scikit--learn-ML-F7931E?logo=scikit-learn&logoColor=white" alt="scikit-learn" />
+  <img src="https://img.shields.io/badge/License-Hackathon_Submission-green" alt="License" />
 </p>
 
 ---
 
-## 📋 Table of Contents
+## 🎯 The Problem
 
-- [The Problem & Target User](#-the-problem--target-user)
-- [Core Features](#-core-features)
-- [The Technology — Hybrid Engine](#-the-technology--hybrid-engine)
-- [Architecture Overview](#-architecture-overview)
-- [Guardrail Compliance](#-guardrail-compliance-critical)
-- [Local Setup Instructions](#-local-setup-instructions)
-- [Project Structure](#-project-structure)
-- [API Reference](#-api-reference)
-- [Roadmap & Limitations](#-roadmap--limitations)
-- [Team](#-team)
+Financial access in India has outrun financial confidence.
 
----
+> **240 million** new demat accounts were opened in the last 4 years. Many belong to first-time investors in Tier-2 and Tier-3 cities — people who arrived at the stock market via WhatsApp forwards, not finance textbooks.
 
-## 🎯 The Problem & Target User
+Scammers exploit this gap. They run fake "SEBI-registered" tip groups, promise guaranteed returns, demand urgent UPI transfers, and share phishing links — all via the same WhatsApp that Ramesh uses to talk to his family.
 
-> **"Ramesh is a 52-year-old shopkeeper in Rewa, Madhya Pradesh.** He recently got a smartphone and started using WhatsApp. One day, he receives a message in Hindi promising *guaranteed 20% monthly returns* from a *SEBI-registered advisor*. The message asks him to transfer ₹10,000 to a personal UPI ID. Ramesh doesn't know what SEBI is. He can't Google in English. He's about to send the money."
+### Meet Ramesh 👤
 
-**Sangyan Shield exists for Ramesh.**
+> **Ramesh, 55, lives in Raipur.** He recently opened a demat account after his nephew showed him how. Last Tuesday, he was added to a WhatsApp group called _"SEBI Certified Premium Stock Tips 💰"_ that promises 20% monthly returns. The group admin shared a SEBI registration number — `INA000099999` — to prove legitimacy. Ramesh is about to send ₹25,000 via GPay.
 
-India's investment fraud landscape disproportionately affects retail investors in smaller cities — people who:
+**Sangyan Shield exists so Ramesh can check before he sends.**
 
-- 🏘️ **Lack access** to financial literacy resources in their language
-- 📱 **Receive scams** via WhatsApp/SMS tip-groups they didn't sign up for
-- ⌨️ **Can't type easily** on smartphones — many are first-generation internet users
-- 🤝 **Trust authority claims** ("SEBI approved", "Government scheme") at face value
-
-These aren't edge cases — they are the **primary targets** of investment scammers.
+He forwards that WhatsApp message to our app. In under 2 seconds, he gets a clear, spoken-aloud verdict in Hindi: _"उच्च जोखिम — संभवतः घोटाला"_ (High risk — likely a scam). The fake SEBI number is flagged in red. Ramesh keeps his money.
 
 ---
 
-## ✨ Core Features
+## ✨ Killer Features
 
-### 1. 📩 Message Check
-Paste any suspicious WhatsApp, SMS, or Telegram message. The hybrid engine scans it in **real time**, highlights the exact scam phrases with colour-coded spans, and explains *why* each phrase is dangerous — in the user's own language.
+### 📲 WhatsApp Share Target Integration `NEW`
 
-### 2. 🧭 Guided Mode (No-Typing Interface)
-Can't copy-paste? Can't type in English? **No problem.**  
-Guided Mode presents **6 simple Yes/No questions** with large tap targets (e.g., *"Did they promise guaranteed profits?"*). Each question can be **read aloud** in Hindi or English using the built-in Web Speech API. Zero typing required.
+Our tagline is _"For the moment you can't copy-paste"_ — and we mean it literally.
 
-### 3. 🔊 Bilingual Voice Output (Hindi + English)
-Every verdict screen has a **"Hear this result"** button. The app reads the risk level, the reasons, and the next steps aloud — using `hi-IN` or `en-IN` speech synthesis. Designed for users who may struggle to read on small screens.
+As a **Progressive Web App (PWA)**, Sangyan Shield registers itself in the native OS share menu. Users can:
 
-### 4. ✅ Recovery Checklist
-Already sent money? The **Recovery Path** provides a calm, step-by-step action plan:
-1. Call your bank/UPI fraud helpline immediately
-2. Do not send more money (even if they promise a "refund")
-3. Save all screenshots — chats, UPI IDs, phone numbers
-4. File a complaint on [cybercrime.gov.in](https://cybercrime.gov.in)
-5. Dial **1930** (India's cyber fraud helpline)
+1. Long-press any WhatsApp message
+2. Tap **Share → Sangyan Shield**
+3. Get an instant scam verdict — **zero typing, zero copy-paste**
+
+The shared text auto-populates and **auto-submits** within 600ms. The user goes from WhatsApp to a verdict in one tap.
+
+---
+
+### 🏦 Live SEBI Registry Verification `NEW`
+
+Scammers love quoting fake SEBI registration numbers. We catch them.
+
+- **Regex extraction** automatically detects SEBI-format numbers (`INA`, `INH`, `INB`, `INP`, `INR`, `INZ`, `INM`, `IND` prefixes) anywhere in the message
+- **Simulated live lookup** verifies the number against a curated SEBI intermediary database
+- If the number is **not found** → a 🚨 **"FAKE SEBI NUMBER DETECTED"** badge appears with a critical +50 risk score penalty
+- If verified → a ✅ green badge shows the entity name and type
+
+This turns a common social engineering attack vector into an instant red flag.
+
+---
+
+### 🤖 Hybrid Detection Engine
+
+We don't rely on a single model. Our engine blends **two independent signals**:
+
+| Layer | Purpose | How |
+|-------|---------|-----|
+| **Rule Engine** | Explainability | 7 deterministic rules with regex pattern matching across English + Hindi, weighted scoring, and span highlighting |
+| **ML Model** | Coverage | TF-IDF + Logistic Regression classifier trained on Indian financial scam corpus, outputting a 0–100% **AI Confidence Score** |
+
+The **hybrid blender** ensures:
+- Rules catch known patterns with explainable reasons
+- ML catches zero-day scams that rules haven't seen
+- If ML says >70% scam but rules found nothing → escalate to "Be careful"
+- If both agree → escalate to "High risk"
+
+Neither system can downgrade the other's high-confidence detection.
+
+---
+
+### 🗣️ Bharat-First UX
+
+Designed for the 500 million Indians who think in Hindi but receive scams in English:
+
+- **🔤 Hindi ↔ English toggle** — every label, flag, and next-step is fully translated
+- **🔊 Voice synthesis** — "Hear this result" button reads the entire verdict aloud in `hi-IN` or `en-IN`
+- **✅ Guided Mode** — 6 yes/no questions for high-pressure phone call situations where the user can't type. No literacy barrier
+- **📱 Mobile-first** — 480px max-width, 48px tap targets, high-contrast UI with WCAG-friendly colors
+
+---
+
+### 🩹 Recovery Path
+
+For users who have already sent money — because prevention alone isn't enough:
+
+1. Call your bank fraud helpline immediately
+2. Stop all further payments
+3. Save screenshots of chats, UPI IDs, and phone numbers
+4. File a complaint on **cybercrime.gov.in**
+5. Dial **1930** (India cyber fraud helpline)
 6. Tell a trusted family member — you don't have to handle this alone
 
-### 5. 🤖 AI Confidence Score
-When the ML model is active, the verdict screen displays an **AI Confidence badge** (e.g., *AI Confidence: 87%*) — giving users a transparent, at-a-glance signal of how confident the system is that the message is a scam.
+---
+
+## 🔒 Strict Guardrail Compliance
+
+This is critical for the hackathon and for real users. Sangyan Shield adheres to strict ethical guardrails:
+
+| Guardrail | Implementation |
+|-----------|---------------|
+| **Zero PII stored** | No user messages are saved, logged, or transmitted beyond the analysis request |
+| **No OTP / SMS access** | We never request, read, or intercept OTPs or SMS messages |
+| **Images deleted instantly** | OCR-processed images are never persisted to disk |
+| **Non-commercial** | No ads, no premium tier, no monetization of any kind |
+| **No financial advice** | We provide risk indicators only — every verdict carries the disclaimer: _"This is a risk indicator, not a legal finding"_ |
+| **No stock tips** | Sangyan Shield will never recommend buying, selling, or holding any security |
+| **Offline-capable** | Service worker caches the app shell for use in low-connectivity areas |
 
 ---
 
-## ⚙️ The Technology — Hybrid Engine
-
-Sangyan Shield uses a **two-layer hybrid architecture** that combines the best of deterministic rules and machine learning:
-
-```
-┌──────────────────────────────────────────────────────┐
-│                  USER INPUT (text)                    │
-└──────────────┬───────────────────────┬───────────────┘
-               │                       │
-       ┌───────▼────────┐     ┌────────▼─────────┐
-       │  RULE ENGINE   │     │    ML MODEL      │
-       │  (Deterministic)│     │  (scikit-learn)  │
-       │                │     │                  │
-       │ • Pattern match │     │ • TF-IDF vectors │
-       │ • Weighted score│     │ • Logistic Reg.  │
-       │ • Exact spans   │     │ • Scam probability│
-       │ • Explainability│     │ • Zero-day detect │
-       └───────┬────────┘     └────────┬─────────┘
-               │                       │
-       ┌───────▼───────────────────────▼───────────┐
-       │           HYBRID BLENDING LAYER           │
-       │                                           │
-       │  Rules provide explainability & precision  │
-       │  ML provides coverage & zero-day detection │
-       │  Rules are NEVER downgraded by ML          │
-       └─────────────────┬─────────────────────────┘
-                         │
-              ┌──────────▼──────────┐
-              │    RISK VERDICT     │
-              │  high / careful /   │
-              │  looks_okay /       │
-              │  cant_tell          │
-              └─────────────────────┘
-```
-
-### Layer 1 — Rule Engine (Deterministic)
-
-A curated set of **7 pattern-matching rules** in [`rules.json`](backend/rules.json), each with:
-- **Bilingual patterns** (English + Hindi) — e.g., `"guaranteed returns"`, `"गारंटी रिटर्न"`
-- **Weighted severity** — from `-15` (educational content, safe signal) to `+45` (OTP request, critical danger)
-- **Explainable reasons** — every flag comes with a human-readable sentence in the user's language
-- **Exact text spans** — the UI highlights the *precise* words that triggered the flag
-
-This layer is **100% explainable**. A judge, regulator, or user can always trace *exactly* why a verdict was given.
-
-### Layer 2 — ML Model (Zero-Day Detection)
-
-A lightweight **TF-IDF + Logistic Regression** classifier trained on curated scam/genuine examples via [`train_ml.py`](backend/train_ml.py):
-
-| Component | Detail |
-|---|---|
-| Vectorizer | `TfidfVectorizer` — 3,000 features, unigrams + bigrams |
-| Classifier | `LogisticRegression` — balanced class weights, L-BFGS solver |
-| Output | Scam probability `0.0–1.0` surfaced as **AI Confidence Score** |
-| Size | ~50 KB total (vectorizer + classifier `.pkl` files) |
-| Runs | **Entirely local** — no API calls, no cloud, no data leaves the device |
-
-### Hybrid Blending Strategy
-
-The blending layer in [`engine.py`](backend/engine.py) follows strict principles:
-
-- **Rules are never downgraded by ML.** If rules flag danger, ML cannot override.
-- **ML escalates silently.** If ML detects ≥70% scam probability but rules found nothing → escalate to `"careful"`.
-- **Both agree = maximum confidence.** If rules say `"careful"` and ML says ≥85% → escalate to `"high"`.
-- **Educational content is sacred.** If only negative-weight (safe) rules matched, the verdict stays `"looks_okay"` regardless of ML.
-
-### Frontend — React + Vite PWA
-
-| Stack | Version |
-|---|---|
-| React | 19.x |
-| Vite | 8.x |
-| React Router | 7.x |
-| Speech | Web Speech API (`SpeechSynthesisUtterance`) |
-| i18n | Custom context-based, JSON language packs |
-| Linting | oxlint |
-
----
-
-## 🏗️ Architecture Overview
-
-```
-sangyan-shield/
-├── backend/                 # Python / Flask API
-│   ├── app.py               # Flask server — routes, rate limiting, CORS
-│   ├── engine.py            # Hybrid engine — rules + ML blending
-│   ├── train_ml.py          # ML training script (TF-IDF + LogReg)
-│   ├── rules.json           # 7 deterministic scam-detection rules
-│   ├── guided.json          # 6 guided-mode questions (Hindi + English)
-│   ├── registry_demo.json   # Demo SEBI registry data (placeholder)
-│   ├── models/              # Serialized ML artifacts (vectorizer + classifier)
-│   └── requirements.txt     # Python dependencies (pinned)
-│
-├── frontend/                # React + Vite SPA
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── Home.jsx         # Landing — 3 entry points
-│   │   │   ├── MessageInput.jsx # Paste-and-check interface
-│   │   │   ├── GuidedMode.jsx   # No-typing 6-question wizard
-│   │   │   ├── Verdict.jsx      # Risk verdict + voice + AI badge
-│   │   │   └── Recovery.jsx     # Post-scam recovery checklist
-│   │   ├── i18n/
-│   │   │   └── en.json          # English language pack
-│   │   ├── LanguageContext.jsx  # i18n context provider
-│   │   ├── App.jsx              # Router + layout
-│   │   └── App.css              # Full design system
-│   ├── .env.example             # Environment template
-│   └── package.json
-│
-└── README.md
-```
-
----
-
-## 🔒 Guardrail Compliance (CRITICAL)
-
-Sangyan Shield was designed from day one to strictly comply with every hackathon guardrail:
-
-| Guardrail | How We Comply |
-|---|---|
-| **🔐 Zero Data Stored** | No database. No log files with user content. No cookies. No analytics. All analysis is **stateless** — the input is processed in-memory and the response is returned. Nothing is persisted. |
-| **📵 No OTP/SMS Access** | The app **never** requests SMS permissions, contacts, or phone access. Users manually paste text into the input field. Privacy by Design, not by afterthought. |
-| **🚫 No Financial Advice** | Sangyan Shield **never** says "invest here" or "sell this stock". Every verdict includes the disclaimer: *"This is a risk indicator, not a legal finding."* We detect scams — we don't recommend trades. |
-| **🏛️ Non-Commercial** | No ads. No premium tier. No data monetization. No user accounts. The app is fully open-source and built exclusively for this hackathon. |
-| **⚖️ No SEBI Regulation Violation** | We do not provide investment advisory services. We do not access market data or APIs. We only flag patterns commonly associated with fraud. |
-| **🌐 Runs 100% Locally** | The ML model runs on-device via `scikit-learn`. No cloud API calls (no OpenAI, no Google Cloud). The user's data never leaves their machine. |
-
----
-
-## 🚀 Local Setup Instructions
+## 🚀 Local Setup & Testing
 
 ### Prerequisites
 
-| Tool | Version |
-|---|---|
-| Python | 3.10+ |
-| Node.js | 18+ |
-| npm | 9+ |
-| Git | Any |
+- **Python** 3.10+
+- **Node.js** 18+
+- **npm** 9+
 
-### 1. Clone the Repository
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/Utsav006/sangyan-shield.git
 cd sangyan-shield
 ```
 
-### 2. Backend Setup (Flask + ML)
+### 2. Backend setup
 
 ```bash
-# Create and activate a virtual environment
 cd backend
 python -m venv venv
+venv\Scripts\activate        # Windows
+# source venv/bin/activate   # macOS / Linux
 
-# Windows
-venv\Scripts\activate
-# macOS/Linux
-# source venv/bin/activate
-
-# Install dependencies
 pip install -r requirements.txt
-
-# Train the ML model (generates vectorizer.pkl + classifier.pkl)
-python train_ml.py
-
-# Start the Flask server (runs on port 5000)
-python app.py
+python train_ml.py           # Generate ML model artifacts
+python app.py                # Start Flask on http://localhost:5000
 ```
 
-You should see:
-```
-ML model loaded successfully from ...\backend\models
- * Running on http://0.0.0.0:5000
-```
-
-### 3. Frontend Setup (React + Vite)
-
-Open a **new terminal**:
+### 3. Frontend setup (new terminal)
 
 ```bash
 cd frontend
-
-# Copy the environment template
-cp .env.example .env
-
-# Install dependencies
 npm install
-
-# Start the dev server (runs on port 5173)
-npm run dev
+npm run dev                  # Start Vite dev server on http://localhost:5173
 ```
 
-### 4. Open in Browser
-
-Navigate to **`http://localhost:5173`** — Sangyan Shield is ready.
-
-### Quick Smoke Test (API)
+### 4. Run tests
 
 ```bash
-curl -X POST http://localhost:5000/api/analyze \
-  -H "Content-Type: application/json" \
-  -d '{"text": "Guaranteed 20% monthly returns. Send money to my UPI now. SEBI registered."}'
+cd backend
+pytest test_engine.py -v     # Unit tests for the hybrid engine
 ```
 
-Expected response:
-```json
-{
-  "risk_level": "high",
-  "flags": [
-    {"id": "guaranteed_returns", "reason": "Promising fixed or guaranteed returns..."},
-    {"id": "personal_bank_transfer", "reason": "Asking you to send money..."},
-    {"id": "sebi_claim", "reason": "Anyone can claim to be SEBI registered..."}
-  ],
-  "ml_scam_probability": 94.2,
-  "next_steps": ["Do not send money", "..."],
-  "disclaimer": "This is a risk indicator, not a legal finding."
-}
+> **Tip:** The frontend proxies API calls to `http://localhost:5000`. Make sure the backend is running first.
+
+---
+
+## 🏗️ Tech Stack
+
+### Frontend
+| Technology | Version | Purpose |
+|-----------|---------|---------|
+| React | 19 | Component UI |
+| React Router | 7 | Client-side routing |
+| Vite | 8 | Build tooling & HMR |
+| vite-plugin-pwa | 1.3 | PWA manifest, service worker, Web Share Target |
+| Web Speech API | Native | Voice synthesis for verdicts |
+
+### Backend
+| Technology | Version | Purpose |
+|-----------|---------|---------|
+| Flask | 3.x | REST API server |
+| Flask-CORS | 6.x | Cross-origin for frontend |
+| Flask-Limiter | 4.x | Rate limiting (10 req/min per endpoint) |
+| scikit-learn | 1.7 | TF-IDF + Logistic Regression classifier |
+| Joblib | 1.5 | Model serialization |
+| Pillow + Tesseract | — | OCR for screenshot analysis |
+| Regex Rule Engine | Custom | 7 weighted rules, bilingual pattern matching |
+
+### Data & Models
+| File | Purpose |
+|------|---------|
+| `backend/rules.json` | 7 deterministic scam-detection rules with Hindi + English patterns |
+| `backend/data/sebi_intermediaries.json` | Simulated SEBI registry (13 entries, 8 prefix types) |
+| `backend/models/vectorizer.pkl` | TF-IDF vectorizer (generated by `train_ml.py`) |
+| `backend/models/classifier.pkl` | Logistic Regression classifier (generated by `train_ml.py`) |
+
+---
+
+## 📁 Project Structure
+
+```
+sangyan-shield/
+├── backend/
+│   ├── app.py                  # Flask API server
+│   ├── engine.py               # Hybrid detection engine (rules + ML)
+│   ├── registry.py             # SEBI number extraction & verification
+│   ├── train_ml.py             # ML model training script
+│   ├── test_engine.py          # Unit tests (pytest)
+│   ├── rules.json              # Deterministic rule definitions
+│   ├── guided.json             # Guided mode question config
+│   ├── data/
+│   │   └── sebi_intermediaries.json  # Simulated SEBI registry
+│   └── models/
+│       ├── vectorizer.pkl      # TF-IDF vectorizer
+│       └── classifier.pkl      # Trained classifier
+├── frontend/
+│   ├── vite.config.js          # Vite + PWA config with share_target
+│   ├── index.html              # Entry point
+│   ├── public/
+│   │   └── favicon.svg         # App icon
+│   └── src/
+│       ├── App.jsx             # Router & layout shell
+│       ├── App.css             # Full design system
+│       ├── LanguageContext.jsx  # i18n provider
+│       ├── i18n/
+│       │   ├── en.json         # English translations
+│       │   └── hi.json         # Hindi translations
+│       └── components/
+│           ├── Home.jsx        # Landing page + share tip
+│           ├── MessageInput.jsx # Text input + share target handler
+│           ├── GuidedMode.jsx  # Yes/No question wizard
+│           ├── Verdict.jsx     # Result page + SEBI badge
+│           └── Recovery.jsx    # Post-scam recovery checklist
+└── README.md
 ```
 
 ---
 
-## 📡 API Reference
+## 👥 Team UV
 
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/api/health` | Health check — returns `{"status": "ok"}` |
-| `GET` | `/api/guided/questions?lang=en` | Fetch guided-mode questions (supports `en`, `hi`) |
-| `POST` | `/api/analyze` | Analyze free-text input — body: `{"text": "...", "language": "en"}` |
-| `POST` | `/api/guided` | Analyze guided answers — body: `{"answers": [...], "language": "en"}` |
+Built with ❤️ for Bharat's retail investors.
 
-**Rate Limits:** 10 requests/minute per endpoint, 60/hour, 200/day (configurable).
-
----
-
-## 🗺️ Roadmap & Limitations
-
-### ⚠️ Honest Limitations (Hackathon Scope)
-
-- **SEBI registry check uses demo data.** The `registry_demo.json` file is currently a placeholder. In production, this would query the official [SEBI intermediary search](https://www.sebi.gov.in/sebiweb/other/OtherAction.do?doRecognisedFpi=yes&intmId=13).
-- **ML model is trained on a curated seed dataset** (~45 examples). Accuracy will improve significantly with a larger, community-contributed corpus.
-- **OCR module is scaffolded** (`ocr.py`) but not yet wired into the API. Users currently paste text manually rather than uploading screenshot images.
-- **Speech synthesis quality** depends on the device's available voices — some older Android devices may not have Hindi TTS installed.
-
-### 🔮 Future Plans
-
-| Phase | Feature |
-|---|---|
-| **v1.1** | 📷 Screenshot OCR — upload a WhatsApp screenshot instead of pasting text (via `pytesseract`) |
-| **v1.2** | 💬 WhatsApp Share Target — "Share to Sangyan Shield" from WhatsApp's share menu |
-| **v1.3** | 🌐 Community Reporting — anonymous, privacy-preserving crowdsourced scam pattern database |
-| **v1.4** | 🏛️ Live SEBI Registry — real-time verification against the SEBI intermediary database |
-| **v2.0** | 📱 Offline PWA — full offline support with cached ML model for areas with poor connectivity |
-| **v2.1** | 🗣️ Voice Input — speak the scam message instead of typing (Speech-to-Text → analysis) |
-
----
-
-## 👥 Team
-
-**Team UV** — Built for the SANGYAN Investor Resilience Hackathon 2026.
+> _"Sangyan" (संज्ञान) means awareness — because the best defence against a scam is knowing it's one._
 
 ---
 
 <p align="center">
-  <strong>🛡️ Sangyan Shield</strong> — Because no one should lose their savings to a forwarded message.
+  <strong>Sangyan Shield</strong> — Check before you send. 🛡️
 </p>
