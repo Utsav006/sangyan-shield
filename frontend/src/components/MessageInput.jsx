@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../LanguageContext'
 
-const API_URL = 'http://localhost:5000/api/analyze'
+const API_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/analyze`
 
 export default function MessageInput() {
   const { t, language } = useLanguage()
@@ -27,7 +27,8 @@ export default function MessageInput() {
       })
 
       if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`)
+        const body = await res.json().catch(() => ({}))
+        throw new Error(body.error || `HTTP ${res.status}`)
       }
 
       const data = await res.json()
@@ -64,7 +65,13 @@ export default function MessageInput() {
           className="btn btn-primary"
           disabled={loading || !text.trim()}
         >
-          {loading ? t.message.checking : t.message.submit}
+          {loading ? (
+            <>
+              <span className="spinner" aria-hidden="true" /> {t.message.checking}
+            </>
+          ) : (
+            t.message.submit
+          )}
         </button>
       </form>
     </main>

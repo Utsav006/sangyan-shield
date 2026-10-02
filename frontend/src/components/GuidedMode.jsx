@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../LanguageContext'
 
-const QUESTIONS_URL = 'http://localhost:5000/api/guided/questions'
-const SUBMIT_URL = 'http://localhost:5000/api/guided'
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+const QUESTIONS_URL = `${API_BASE}/api/guided/questions`
+const SUBMIT_URL = `${API_BASE}/api/guided`
 
 const ICONS = {
   person_unknown: '👤',
@@ -14,13 +15,21 @@ const ICONS = {
   group: '👥',
 }
 
+/**
+ * Safely speak text via the Web Speech API.
+ * Wrapped in try/catch so browsers that don't fully support it won't crash.
+ */
 function speak(text, lang) {
-  if (!window.speechSynthesis) return
-  window.speechSynthesis.cancel()
-  const utterance = new SpeechSynthesisUtterance(text)
-  utterance.lang = lang === 'hi' ? 'hi-IN' : 'en-IN'
-  utterance.rate = 0.9
-  window.speechSynthesis.speak(utterance)
+  try {
+    if (!window.speechSynthesis) return
+    window.speechSynthesis.cancel()
+    const utterance = new SpeechSynthesisUtterance(text)
+    utterance.lang = lang === 'hi' ? 'hi-IN' : 'en-IN'
+    utterance.rate = 0.9
+    window.speechSynthesis.speak(utterance)
+  } catch {
+    // Speech synthesis not supported or blocked — silently ignore
+  }
 }
 
 export default function GuidedMode() {
@@ -59,7 +68,7 @@ export default function GuidedMode() {
     load()
     return () => {
       cancelled = true
-      window.speechSynthesis?.cancel()
+      try { window.speechSynthesis?.cancel() } catch { /* ignored */ }
     }
   }, [language, t.guided.error])
 
@@ -72,7 +81,10 @@ export default function GuidedMode() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ answers: finalAnswers, language }),
       })
-      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        throw new Error(body.error || `HTTP ${res.status}`)
+      }
       const data = await res.json()
       navigate('/verdict', { state: { result: data, source: 'guided' } })
     } catch {
@@ -101,7 +113,10 @@ export default function GuidedMode() {
   if (loading) {
     return (
       <main className="page guided-page">
-        <p className="page-subtitle">{t.guided.submitting}</p>
+        <div className="loading-state">
+          <span className="spinner" aria-hidden="true" />
+          <p className="page-subtitle">{t.guided.submitting}</p>
+        </div>
       </main>
     )
   }
@@ -166,7 +181,10 @@ export default function GuidedMode() {
       </div>
 
       {submitting ? (
-        <p className="page-subtitle">{t.guided.submitting}</p>
+        <div className="loading-state">
+          <span className="spinner" aria-hidden="true" />
+          <p className="page-subtitle">{t.guided.submitting}</p>
+        </div>
       ) : null}
     </main>
   )

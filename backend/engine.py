@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import json
+import logging
 import re
 from pathlib import Path
 from typing import Any
+
+log = logging.getLogger(__name__)
 
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -71,8 +74,15 @@ NEXT_STEPS = {
 
 
 def _load_json(name: str) -> Any:
-    with open(BASE_DIR / name, encoding="utf-8") as f:
-        return json.load(f)
+    try:
+        with open(BASE_DIR / name, encoding="utf-8") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        log.error("Data file not found: %s", name)
+        raise RuntimeError(f"Missing data file: {name}")
+    except json.JSONDecodeError as exc:
+        log.error("Invalid JSON in %s: %s", name, exc)
+        raise RuntimeError(f"Corrupt data file: {name}")
 
 
 def load_rules() -> list[dict]:
@@ -112,7 +122,12 @@ def find_spans(text: str, pattern: str) -> list[list[int]]:
 
 def analyze_text(text: str, language: str | None = None) -> dict:
     """Match message text against rules.json and return the PRD response shape."""
-    rules = load_rules()
+    try:
+        rules = load_rules()
+    except RuntimeError:
+        log.exception("Could not load rules for text analysis")
+        raise
+
     lang = language or detect_language(text)
     if lang not in ("en", "hi"):
         lang = "en"
@@ -123,35 +138,39 @@ def analyze_text(text: str, language: str | None = None) -> dict:
     could_not_verify: list[str] = []
 
     for rule in rules:
-        best_span: list[int] | None = None
-        for pattern in rule.get("patterns", []):
-            spans = find_spans(text, pattern)
-            if spans:
-                # Prefer the earliest match for highlighting
-                candidate = spans[0]
-                if best_span is None or candidate[0] < best_span[0]:
-                    best_span = candidate
+        try:
+            best_span: list[int] | None = None
+            for pattern in rule.get("patterns", []):
+                spans = find_spans(text, pattern)
+                if spans:
+                    # Prefer the earliest match for highlighting
+                    candidate = spans[0]
+                    if best_span is None or candidate[0] < best_span[0]:
+                        best_span = candidate
 
-        if best_span is not None:
-            weight = float(rule.get("weight", 0))
-            score += weight
-            matched_ids.add(rule["id"])
-            reason = rule.get("reason", {})
-            flags.append(
-                {
-                    "id": rule["id"],
-                    "reason": reason.get(lang) or reason.get("en", ""),
-                    "span": best_span,
-                }
-            )
-
-            if rule["id"] == "sebi_claim":
-                msg = (
-                    "SEBI registration number not found in demo data"
-                    if lang == "en"
-                    else "डेमो डेटा में सेबी पंजीकरण संख्या नहीं मिली"
+            if best_span is not None:
+                weight = float(rule.get("weight", 0))
+                score += weight
+                matched_ids.add(rule["id"])
+                reason = rule.get("reason", {})
+                flags.append(
+                    {
+                        "id": rule["id"],
+                        "reason": reason.get(lang) or reason.get("en", ""),
+                        "span": best_span,
+                    }
                 )
-                could_not_verify.append(msg)
+
+                if rule["id"] == "sebi_claim":
+                    msg = (
+                        "SEBI registration number not found in demo data"
+                        if lang == "en"
+                        else "डेमो डेटा में सेबी पंजीकरण संख्या नहीं मिली"
+                    )
+                    could_not_verify.append(msg)
+        except Exception:
+            log.warning("Skipping malformed rule: %s", rule.get("id", "unknown"))
+            continue
 
     # Only count positive-weight flags toward "could not tell"
     positive_flags = [f for f in flags if next(
@@ -181,7 +200,12 @@ def analyze_guided(answers: list[dict], language: str = "en") -> dict:
     Expected answers shape: [{"id": "q_...", "answer": true|false}, ...]
     or a plain list of booleans aligned with guided.json order.
     """
-    guided = load_guided()
+    try:
+        guided = load_guided()
+    except RuntimeError:
+        log.exception("Could not load guided questions for analysis")
+        raise
+
     questions = guided.get("questions", [])
     lang = language if language in ("en", "hi") else "en"
 
@@ -190,15 +214,19 @@ def analyze_guided(answers: list[dict], language: str = "en") -> dict:
 
     # Normalize answers into id -> bool map
     answer_map: dict[str, bool] = {}
-    if answers and isinstance(answers[0], dict):
-        for item in answers:
-            qid = item.get("id")
-            if qid is not None:
-                answer_map[qid] = bool(item.get("answer"))
-    else:
-        for i, q in enumerate(questions):
-            if i < len(answers):
-                answer_map[q["id"]] = bool(answers[i])
+    try:
+        if answers and isinstance(answers[0], dict):
+            for item in answers:
+                qid = item.get("id")
+                if qid is not None:
+                    answer_map[qid] = bool(item.get("answer"))
+        else:
+            for i, q in enumerate(questions):
+                if i < len(answers):
+                    answer_map[q["id"]] = bool(answers[i])
+    except (TypeError, AttributeError) as exc:
+        log.warning("Malformed answers payload: %s", exc)
+        raise ValueError("Invalid answers format") from exc
 
     for q in questions:
         if answer_map.get(q["id"]):

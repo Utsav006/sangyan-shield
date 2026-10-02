@@ -17,20 +17,24 @@ const RISK_ICON = {
 }
 
 function speakVerdict(result, t, language) {
-  if (!window.speechSynthesis || !result) return
-  window.speechSynthesis.cancel()
+  try {
+    if (!window.speechSynthesis || !result) return
+    window.speechSynthesis.cancel()
 
-  const riskLabel = t.verdict.risk[result.risk_level] || result.risk_level
-  const reasons = (result.flags || []).map((f) => f.reason).join('. ')
-  const steps = (result.next_steps || []).join('. ')
-  const text = [riskLabel, reasons, steps, result.disclaimer]
-    .filter(Boolean)
-    .join('. ')
+    const riskLabel = t.verdict.risk[result.risk_level] || result.risk_level
+    const reasons = (result.flags || []).map((f) => f.reason).join('. ')
+    const steps = (result.next_steps || []).join('. ')
+    const text = [riskLabel, reasons, steps, result.disclaimer]
+      .filter(Boolean)
+      .join('. ')
 
-  const utterance = new SpeechSynthesisUtterance(text)
-  utterance.lang = language === 'hi' ? 'hi-IN' : 'en-IN'
-  utterance.rate = 0.9
-  window.speechSynthesis.speak(utterance)
+    const utterance = new SpeechSynthesisUtterance(text)
+    utterance.lang = language === 'hi' ? 'hi-IN' : 'en-IN'
+    utterance.rate = 0.9
+    window.speechSynthesis.speak(utterance)
+  } catch {
+    // Speech synthesis not supported — silently ignore
+  }
 }
 
 export default function Verdict() {
