@@ -1,4 +1,4 @@
-"""Deterministic scam-risk rule engine for Sangyan Shield."""
+"""Hybrid scam-risk engine: deterministic rules + ML classification."""
 
 from __future__ import annotations
 
@@ -8,9 +8,13 @@ import re
 from pathlib import Path
 from typing import Any
 
+import joblib
+import numpy as np
+
 log = logging.getLogger(__name__)
 
 BASE_DIR = Path(__file__).resolve().parent
+MODELS_DIR = BASE_DIR / "models"
 
 DISCLAIMER = {
     "en": "This is a risk indicator, not a legal finding.",
@@ -73,6 +77,9 @@ NEXT_STEPS = {
 }
 
 
+# ---------------------------------------------------------------------------
+# JSON helpers
+# ---------------------------------------------------------------------------
 def _load_json(name: str) -> Any:
     try:
         with open(BASE_DIR / name, encoding="utf-8") as f:
@@ -93,6 +100,63 @@ def load_guided() -> dict:
     return _load_json("guided.json")
 
 
+# ---------------------------------------------------------------------------
+# ML model — loaded once at import time
+# ---------------------------------------------------------------------------
+_ml_vectorizer = None
+_ml_classifier = None
+_ml_available = False
+
+def _load_ml_model() -> None:
+    """Load the TF-IDF vectorizer and classifier from disk (once)."""
+    global _ml_vectorizer, _ml_classifier, _ml_available
+
+    vec_path = MODELS_DIR / "vectorizer.pkl"
+    clf_path = MODELS_DIR / "classifier.pkl"
+
+    if not vec_path.exists() or not clf_path.exists():
+        log.warning(
+            "ML model files not found in %s — running in rules-only mode. "
+            "Run `python train_ml.py` to generate them.",
+            MODELS_DIR,
+        )
+        return
+
+    try:
+        _ml_vectorizer = joblib.load(vec_path)
+        _ml_classifier = joblib.load(clf_path)
+        _ml_available = True
+        log.info("ML model loaded successfully from %s", MODELS_DIR)
+    except Exception:
+        log.exception("Failed to load ML model — falling back to rules-only mode")
+
+
+# Load on module import so the model is ready when Flask starts
+_load_ml_model()
+
+
+def ml_predict(text: str) -> float | None:
+    """
+    Return the ML model's scam probability (0.0–1.0) for the given text.
+    Returns None if the ML model is unavailable.
+    """
+    if not _ml_available:
+        return None
+
+    try:
+        X = _ml_vectorizer.transform([text])
+        proba = _ml_classifier.predict_proba(X)[0]
+        # proba columns: [genuine, scam] — we want the scam probability
+        scam_index = list(_ml_classifier.classes_).index(1)
+        return float(proba[scam_index])
+    except Exception:
+        log.exception("ML prediction failed for input text")
+        return None
+
+
+# ---------------------------------------------------------------------------
+# Language & scoring helpers
+# ---------------------------------------------------------------------------
 def detect_language(text: str) -> str:
     """Prefer Hindi if Devanagari characters are present."""
     if re.search(r"[\u0900-\u097F]", text):
@@ -120,8 +184,57 @@ def find_spans(text: str, pattern: str) -> list[list[int]]:
     return spans
 
 
+# ---------------------------------------------------------------------------
+# Hybrid risk level: combine rule score + ML probability
+# ---------------------------------------------------------------------------
+def _hybrid_risk(
+    rule_score: float,
+    positive_flag_count: int,
+    ml_prob: float | None,
+) -> str:
+    """
+    Determine the final risk level by blending the rule engine score
+    with the ML scam probability.
+
+    Strategy:
+    - Rule engine provides explainable, high-precision signals.
+    - ML model provides broad coverage and catches zero-day patterns.
+    - If ML says > 70% scam but rules found nothing, escalate to "careful".
+    - If both agree on high risk, keep "high".
+    """
+    # Start with the rule-based risk level
+    rule_risk = score_to_risk(rule_score, positive_flag_count)
+
+    if ml_prob is None:
+        # ML unavailable — fall back to pure rule engine
+        return rule_risk
+
+    # ML boost: if the ML is highly confident it's a scam…
+    if ml_prob >= 0.70 and rule_risk in ("cant_tell", "looks_okay"):
+        # Rules found nothing but ML is suspicious — escalate
+        return "careful"
+
+    if ml_prob >= 0.85 and rule_risk == "careful":
+        # Both signals align toward danger — escalate to high
+        return "high"
+
+    # ML dampen: if ML says it's safe but rules flagged something
+    # We trust the rules (they are explainable) — no downgrade.
+
+    return rule_risk
+
+
+# ---------------------------------------------------------------------------
+# Main analysis: Hybrid Engine
+# ---------------------------------------------------------------------------
 def analyze_text(text: str, language: str | None = None) -> dict:
-    """Match message text against rules.json and return the PRD response shape."""
+    """
+    Hybrid analysis: deterministic rules + ML classification.
+
+    1. Run rule matching for explainable flags and spans.
+    2. Run ML model for scam probability.
+    3. Blend both signals into a final risk level.
+    """
     try:
         rules = load_rules()
     except RuntimeError:
@@ -176,10 +289,21 @@ def analyze_text(text: str, language: str | None = None) -> dict:
     positive_flags = [f for f in flags if next(
         (r["weight"] for r in rules if r["id"] == f["id"]), 0
     ) > 0]
-    risk_level = score_to_risk(score, len(positive_flags))
 
     # If only educational (negative) rules matched, treat as looks_okay
     if flags and not positive_flags:
+        rule_risk = "looks_okay"
+    else:
+        rule_risk = score_to_risk(score, len(positive_flags))
+
+    # ── ML classification ──────────────────────────────────────────────
+    ml_prob = ml_predict(text)
+
+    # ── Hybrid blending ────────────────────────────────────────────────
+    risk_level = _hybrid_risk(score, len(positive_flags), ml_prob)
+
+    # If only educational (negative) rules matched and ML is also calm
+    if flags and not positive_flags and (ml_prob is None or ml_prob < 0.70):
         risk_level = "looks_okay"
 
     return {
@@ -190,6 +314,7 @@ def analyze_text(text: str, language: str | None = None) -> dict:
         "next_steps": NEXT_STEPS[risk_level][lang],
         "disclaimer": DISCLAIMER[lang],
         "score": score,
+        "ml_scam_probability": round(ml_prob * 100, 1) if ml_prob is not None else None,
     }
 
 
@@ -250,4 +375,5 @@ def analyze_guided(answers: list[dict], language: str = "en") -> dict:
         "next_steps": NEXT_STEPS[risk_level][lang],
         "disclaimer": DISCLAIMER[lang],
         "score": score,
+        "ml_scam_probability": None,
     }

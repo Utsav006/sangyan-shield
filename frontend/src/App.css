@@ -432,6 +432,88 @@ a {
   }
 }
 
+/* Verdict top row — badge + AI confidence side by side */
+.verdict-top-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.verdict-top-row .verdict-badge {
+  flex: 1;
+  min-width: 0;
+}
+
+/* AI Confidence badge */
+.ai-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  border-left-width: 5px;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.ai-badge-icon {
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+.ai-badge-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.ai-badge-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.ai-badge-value {
+  font-size: 1.15rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+/* Color variants */
+.ai-badge--low {
+  border-left-color: var(--safe);
+}
+.ai-badge--low .ai-badge-value {
+  color: var(--safe);
+}
+
+.ai-badge--medium {
+  border-left-color: var(--warning);
+}
+.ai-badge--medium .ai-badge-value {
+  color: var(--warning);
+}
+
+.ai-badge--high {
+  border-left-color: var(--danger);
+  animation: badge-pulse 2s ease-in-out infinite;
+}
+.ai-badge--high .ai-badge-value {
+  color: var(--danger);
+}
+
+@keyframes badge-pulse {
+  0%, 100% { box-shadow: 0 2px 8px rgba(139, 21, 21, 0.08); }
+  50% { box-shadow: 0 2px 16px rgba(139, 21, 21, 0.22); }
+}
+
 /* Loading spinner */
 .spinner {
   display: inline-block;

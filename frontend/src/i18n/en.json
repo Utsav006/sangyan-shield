@@ -40,6 +40,7 @@
     "nextSteps": "What to do next",
     "couldNotVerify": "Could not verify",
     "speak": "Hear this result",
+    "aiConfidence": "AI Confidence",
     "backHome": "Back to home",
     "checkAnother": "Check another message"
   },

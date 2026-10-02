@@ -37,6 +37,13 @@ function speakVerdict(result, t, language) {
   }
 }
 
+/** Map ml_scam_probability to a CSS class for the ring colour. */
+function confidenceClass(prob) {
+  if (prob >= 70) return 'ai-badge--high'
+  if (prob >= 40) return 'ai-badge--medium'
+  return 'ai-badge--low'
+}
+
 export default function Verdict() {
   const { t, language } = useLanguage()
   const location = useLocation()
@@ -56,16 +63,33 @@ export default function Verdict() {
   const riskIcon = RISK_ICON[result.risk_level] || RISK_ICON.cant_tell
   const riskLabel =
     t.verdict.risk[result.risk_level] || result.risk_level
+  const mlProb = result.ml_scam_probability
 
   return (
     <main className={`page verdict-page ${riskClass}`}>
       <h1 className="page-title">{t.verdict.title}</h1>
-      <p className="verdict-badge" role="status">
-        <span className="verdict-icon" aria-hidden="true">
-          {riskIcon}
-        </span>
-        <span>{riskLabel}</span>
-      </p>
+
+      <div className="verdict-top-row">
+        <p className="verdict-badge" role="status">
+          <span className="verdict-icon" aria-hidden="true">
+            {riskIcon}
+          </span>
+          <span>{riskLabel}</span>
+        </p>
+
+        {mlProb != null ? (
+          <div
+            className={`ai-badge ${confidenceClass(mlProb)}`}
+            title={`${t.verdict.aiConfidence}: ${mlProb}%`}
+          >
+            <span className="ai-badge-icon" aria-hidden="true">🤖</span>
+            <div className="ai-badge-content">
+              <span className="ai-badge-label">{t.verdict.aiConfidence}</span>
+              <span className="ai-badge-value">{mlProb}%</span>
+            </div>
+          </div>
+        ) : null}
+      </div>
 
       <button
         type="button"

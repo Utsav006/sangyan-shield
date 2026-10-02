@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+backend/venv/
+backend/models/*.pkl
+
+# Environment files
+.env
+*.local
+
+# OS
+.DS_Store
+Thumbs.db
