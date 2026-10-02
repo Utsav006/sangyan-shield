@@ -290,20 +290,16 @@ def analyze_text(text: str, language: str | None = None) -> dict:
         (r["weight"] for r in rules if r["id"] == f["id"]), 0
     ) > 0]
 
-    # If only educational (negative) rules matched, treat as looks_okay
-    if flags and not positive_flags:
-        rule_risk = "looks_okay"
-    else:
-        rule_risk = score_to_risk(score, len(positive_flags))
-
     # ── ML classification ──────────────────────────────────────────────
     ml_prob = ml_predict(text)
 
     # ── Hybrid blending ────────────────────────────────────────────────
     risk_level = _hybrid_risk(score, len(positive_flags), ml_prob)
 
-    # If only educational (negative) rules matched and ML is also calm
-    if flags and not positive_flags and (ml_prob is None or ml_prob < 0.70):
+    # If ONLY educational (negative-weight) rules matched, the rule engine
+    # has explicitly identified safe content — override unconditionally.
+    # The ML model must not escalate known-safe educational patterns.
+    if flags and not positive_flags:
         risk_level = "looks_okay"
 
     return {
