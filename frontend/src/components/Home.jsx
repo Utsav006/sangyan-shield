@@ -46,6 +46,14 @@ export default function Home() {
           </Link>
         ))}
       </nav>
+
+      <div className="share-tip" id="whatsapp-share-tip">
+        <span className="share-tip-icon" aria-hidden="true">📲</span>
+        <p className="share-tip-text">
+          <strong>{t.home.shareTipLabel || 'Pro tip:'}</strong>{' '}
+          {t.home.shareTip || 'You can share messages directly from WhatsApp to this app!'}
+        </p>
+      </div>
     </main>
   )
 }

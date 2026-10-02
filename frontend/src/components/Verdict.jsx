@@ -44,6 +44,46 @@ function confidenceClass(prob) {
   return 'ai-badge--low'
 }
 
+/** Render the SEBI Registry Check badge. */
+function RegistryBadge({ registryCheck, t }) {
+  if (!registryCheck || registryCheck.status === 'no_number_detected') {
+    return null
+  }
+
+  const isVerified = registryCheck.status === 'verified'
+
+  return (
+    <div
+      className={`registry-badge ${isVerified ? 'registry-badge--verified' : 'registry-badge--fake'}`}
+      role="status"
+      id="registry-check-badge"
+    >
+      <span className="registry-badge-icon" aria-hidden="true">
+        {isVerified ? '✅' : '🚨'}
+      </span>
+      <div className="registry-badge-content">
+        <span className="registry-badge-label">
+          {t.verdict.registryCheck || 'SEBI Registry'}
+        </span>
+        <span className="registry-badge-status">
+          {isVerified
+            ? (t.verdict.sebiVerified || 'SEBI Number Verified')
+            : (t.verdict.sebiFake || 'FAKE SEBI NUMBER DETECTED')}
+        </span>
+        {isVerified && registryCheck.name ? (
+          <span className="registry-badge-entity">
+            {registryCheck.name}
+            {registryCheck.type ? ` · ${registryCheck.type}` : ''}
+          </span>
+        ) : null}
+        <span className="registry-badge-number">
+          {registryCheck.extracted_number}
+        </span>
+      </div>
+    </div>
+  )
+}
+
 export default function Verdict() {
   const { t, language } = useLanguage()
   const location = useLocation()
@@ -90,6 +130,8 @@ export default function Verdict() {
           </div>
         ) : null}
       </div>
+
+      <RegistryBadge registryCheck={result.registry_check} t={t} />
 
       <button
         type="button"

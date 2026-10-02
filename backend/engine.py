@@ -6,6 +6,8 @@ import json
 import logging
 import re
 from pathlib import Path
+
+from registry import extract_sebi_number, verify_sebi_registration
 from typing import Any
 
 import joblib
@@ -250,6 +252,35 @@ def analyze_text(text: str, language: str | None = None) -> dict:
     matched_ids: set[str] = set()
     could_not_verify: list[str] = []
 
+    # ── SEBI Registry Check ────────────────────────────────────────────
+    sebi_number = extract_sebi_number(text)
+    registry_check: dict = {"extracted_number": None, "status": "no_number_detected"}
+
+    if sebi_number:
+        verification = verify_sebi_registration(sebi_number)
+        registry_check = {
+            "extracted_number": sebi_number,
+            "status": verification["status"],
+            **{k: v for k, v in verification.items() if k != "status"},
+        }
+
+        if verification["status"] == "not_found":
+            # Huge red-flag — fake SEBI number
+            fake_reason = (
+                f"Fake SEBI Registration Number detected: {sebi_number} is NOT in the SEBI registry."
+                if lang == "en"
+                else f"नकली सेबी पंजीकरण संख्या: {sebi_number} सेबी रजिस्ट्री में नहीं है।"
+            )
+            flags.append(
+                {
+                    "id": "fake_sebi_number",
+                    "reason": fake_reason,
+                    "span": list(re.search(re.escape(sebi_number), text, re.IGNORECASE).span()),
+                }
+            )
+            score += 50  # Critical penalty — very likely scam
+            matched_ids.add("fake_sebi_number")
+
     for rule in rules:
         try:
             best_span: list[int] | None = None
@@ -274,11 +305,11 @@ def analyze_text(text: str, language: str | None = None) -> dict:
                     }
                 )
 
-                if rule["id"] == "sebi_claim":
+                if rule["id"] == "sebi_claim" and not sebi_number:
                     msg = (
-                        "SEBI registration number not found in demo data"
+                        "SEBI registration claimed but no registration number found in the message"
                         if lang == "en"
-                        else "डेमो डेटा में सेबी पंजीकरण संख्या नहीं मिली"
+                        else "सेबी पंजीकरण का दावा किया लेकिन संदेश में कोई पंजीकरण संख्या नहीं मिली"
                     )
                     could_not_verify.append(msg)
         except Exception:
@@ -287,7 +318,7 @@ def analyze_text(text: str, language: str | None = None) -> dict:
 
     # Only count positive-weight flags toward "could not tell"
     positive_flags = [f for f in flags if next(
-        (r["weight"] for r in rules if r["id"] == f["id"]), 0
+        (r["weight"] for r in rules if r["id"] == f["id"]), 50
     ) > 0]
 
     # ── ML classification ──────────────────────────────────────────────
@@ -311,6 +342,7 @@ def analyze_text(text: str, language: str | None = None) -> dict:
         "disclaimer": DISCLAIMER[lang],
         "score": score,
         "ml_scam_probability": round(ml_prob * 100, 1) if ml_prob is not None else None,
+        "registry_check": registry_check,
     }
 
 

@@ -10,7 +10,9 @@
     "guidedMode": "गाइडेड मोड",
     "guidedModeDesc": "६ आसान हाँ/नहीं प्रश्नों के उत्तर दें",
     "recovery": "रिकवरी पथ",
-    "recoveryDesc": "मैंने पैसे भेज दिए — अब क्या करें?"
+    "recoveryDesc": "मैंने पैसे भेज दिए — अब क्या करें?",
+    "shareTipLabel": "सुझाव:",
+    "shareTip": "आप व्हाट्सऐप से सीधे इस ऐप में संदेश शेयर कर सकते हैं!"
   },
   "message": {
     "title": "संदेश चिपकाएँ",
@@ -41,6 +43,9 @@
     "couldNotVerify": "जाँच नहीं हो सकी",
     "speak": "परिणाम सुनें",
     "aiConfidence": "AI विश्वसनीयता",
+    "registryCheck": "सेबी रजिस्ट्री",
+    "sebiVerified": "सेबी नंबर सत्यापित",
+    "sebiFake": "नकली सेबी नंबर पाया गया",
     "backHome": "होम पर जाएँ",
     "checkAnother": "और संदेश जाँचें"
   },

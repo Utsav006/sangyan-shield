@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useLanguage } from '../LanguageContext'
 
 const API_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/analyze`
@@ -7,37 +7,72 @@ const API_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/
 export default function MessageInput() {
   const { t, language } = useLanguage()
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [text, setText] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const autoSubmitDone = useRef(false)
 
-  async function handleSubmit(e) {
-    e.preventDefault()
-    const trimmed = text.trim()
-    if (!trimmed || loading) return
+  // ── Core submit logic (no event needed) ───────────────────────────
+  const submitText = useCallback(
+    async (input) => {
+      const trimmed = input.trim()
+      if (!trimmed) return
 
-    setLoading(true)
-    setError('')
+      setLoading(true)
+      setError('')
 
-    try {
-      const res = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: trimmed, language }),
-      })
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: trimmed, language }),
+        })
 
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}))
-        throw new Error(body.error || `HTTP ${res.status}`)
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}))
+          throw new Error(body.error || `HTTP ${res.status}`)
+        }
+
+        const data = await res.json()
+        navigate('/verdict', { state: { result: data, source: 'message' } })
+      } catch {
+        setError(t.message.error)
+      } finally {
+        setLoading(false)
       }
+    },
+    [language, navigate, t],
+  )
 
-      const data = await res.json()
-      navigate('/verdict', { state: { result: data, source: 'message' } })
-    } catch {
-      setError(t.message.error)
-    } finally {
-      setLoading(false)
+  // ── Read shared text from URL query params ────────────────────────
+  useEffect(() => {
+    const sharedText = searchParams.get('text') || ''
+    const sharedTitle = searchParams.get('title') || ''
+    const sharedUrl = searchParams.get('url') || ''
+
+    // Combine all parts (WhatsApp typically sends text + url)
+    const parts = [sharedTitle, sharedText, sharedUrl].filter(Boolean)
+    const combined = parts.join('\n').trim()
+
+    if (combined) {
+      setText(combined)
+
+      // Clean the URL so a page refresh won't re-trigger
+      setSearchParams({}, { replace: true })
+
+      // Auto-submit after a brief delay so the user sees the textarea fill
+      if (!autoSubmitDone.current) {
+        autoSubmitDone.current = true
+        const timer = setTimeout(() => submitText(combined), 600)
+        return () => clearTimeout(timer)
+      }
     }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  function handleSubmit(e) {
+    e.preventDefault()
+    submitText(text)
   }
 
   return (

@@ -1,0 +1,93 @@
+[
+  {
+    "registration_number": "INA000012345",
+    "name": "Motilal Oswal Securities Ltd.",
+    "type": "Investment Adviser",
+    "status": "Active",
+    "validity": "2025-12-31"
+  },
+  {
+    "registration_number": "INA000006789",
+    "name": "HDFC Securities Investment Advisory",
+    "type": "Investment Adviser",
+    "status": "Active",
+    "validity": "2026-03-31"
+  },
+  {
+    "registration_number": "INA200015432",
+    "name": "Zerodha Broking Ltd.",
+    "type": "Investment Adviser",
+    "status": "Active",
+    "validity": "2026-06-30"
+  },
+  {
+    "registration_number": "INH000004561",
+    "name": "ICICI Prudential Research Desk",
+    "type": "Research Analyst",
+    "status": "Active",
+    "validity": "2026-01-15"
+  },
+  {
+    "registration_number": "INH000009988",
+    "name": "Kotak Institutional Equities",
+    "type": "Research Analyst",
+    "status": "Active",
+    "validity": "2025-09-30"
+  },
+  {
+    "registration_number": "INH200008765",
+    "name": "SBI Capital Markets Research",
+    "type": "Research Analyst",
+    "status": "Active",
+    "validity": "2026-12-31"
+  },
+  {
+    "registration_number": "INB011876543",
+    "name": "Angel One Ltd.",
+    "type": "Stock Broker",
+    "status": "Active",
+    "validity": "2027-03-31"
+  },
+  {
+    "registration_number": "INB231098765",
+    "name": "Upstox / RKSV Securities",
+    "type": "Stock Broker",
+    "status": "Active",
+    "validity": "2026-09-30"
+  },
+  {
+    "registration_number": "INP000005234",
+    "name": "Sharekhan Portfolio Services",
+    "type": "Portfolio Manager",
+    "status": "Active",
+    "validity": "2026-04-30"
+  },
+  {
+    "registration_number": "INR000003456",
+    "name": "Axis Securities Registrar Services",
+    "type": "Registrar & Transfer Agent",
+    "status": "Active",
+    "validity": "2026-11-30"
+  },
+  {
+    "registration_number": "INZ000172431",
+    "name": "5Paisa Capital Ltd.",
+    "type": "Stock Broker",
+    "status": "Active",
+    "validity": "2026-06-30"
+  },
+  {
+    "registration_number": "INM000011223",
+    "name": "Edelweiss Asset Management",
+    "type": "Mutual Fund",
+    "status": "Active",
+    "validity": "2027-01-31"
+  },
+  {
+    "registration_number": "IND000054321",
+    "name": "IIFL Wealth Depository Participant",
+    "type": "Depository Participant",
+    "status": "Active",
+    "validity": "2026-08-31"
+  }
+]
