@@ -1,0 +1,147 @@
+[
+  {
+    "id": "guaranteed_returns",
+    "patterns": [
+      "guaranteed returns",
+      "guaranteed return",
+      "guaranteed profit",
+      "guaranteed profits",
+      "20% monthly",
+      "30% monthly",
+      "fixed returns",
+      "fixed return",
+      "sure profit",
+      "पक्का मुनाफा",
+      "गारंटी रिटर्न",
+      "गारंटीड रिटर्न",
+      "मासिक 20%",
+      "पक्का फायदा"
+    ],
+    "weight": 40,
+    "reason": {
+      "en": "Promising fixed or guaranteed returns in stock markets is illegal and a common scam signal.",
+      "hi": "शेयर बाजार में पक्के या गारंटीड रिटर्न का वादा अवैध है और घोटाले का संकेत है।"
+    }
+  },
+  {
+    "id": "otp_request",
+    "patterns": [
+      "share otp",
+      "send otp",
+      "give otp",
+      "otp",
+      "one time password",
+      "ओटीपी",
+      "ओ टी पी",
+      "ओटीपी भेजो",
+      "ओटीपी बताओ"
+    ],
+    "weight": 45,
+    "reason": {
+      "en": "No bank, broker, or SEBI official will ask for your OTP. Sharing it can empty your account.",
+      "hi": "कोई भी बैंक, ब्रोकर या सेबी अधिकारी आपका ओटीपी नहीं माँगता। देने से खाता खाली हो सकता है।"
+    }
+  },
+  {
+    "id": "urgent_pressure",
+    "patterns": [
+      "today only",
+      "act now",
+      "last chance",
+      "limited seats",
+      "transfer today",
+      "pay now",
+      "hurry",
+      "urgent",
+      "immediately",
+      "अभी भेजो",
+      "आज ही",
+      "जल्दी करो",
+      "आखिरी मौका",
+      "सीमित सीटें"
+    ],
+    "weight": 25,
+    "reason": {
+      "en": "Scammers create urgency so you act before thinking. Real investments never need a rush transfer.",
+      "hi": "ठग जल्दी करवाते हैं ताकि आप सोचने से पहले पैसे भेज दें। असली निवेश में जल्दबाजी नहीं होती।"
+    }
+  },
+  {
+    "id": "unknown_links",
+    "patterns": [
+      "bit.ly",
+      "tinyurl",
+      "click here",
+      "open this link",
+      "http://",
+      "https://",
+      "wa.me",
+      "t.me",
+      "लिंक खोलो",
+      "यहाँ क्लिक करो",
+      "लिंक पर क्लिक"
+    ],
+    "weight": 20,
+    "reason": {
+      "en": "Unknown or shortened links can lead to fake apps or phishing pages that steal your details.",
+      "hi": "अनजान या छोटे लिंक नकली ऐप या फिशिंग पेज पर ले जा सकते हैं जहाँ आपकी जानकारी चुराई जाती है।"
+    }
+  },
+  {
+    "id": "personal_bank_transfer",
+    "patterns": [
+      "transfer to my account",
+      "send to my upi",
+      "upi id",
+      "pay to personal",
+      "personal account",
+      "gpay",
+      "phonepe",
+      "paytm number",
+      "मेरे खाते में भेजो",
+      "यूपीआई पर भेजो",
+      "व्यक्तिगत खाता",
+      "मेरे यूपीआई"
+    ],
+    "weight": 35,
+    "reason": {
+      "en": "Asking you to send money to a personal bank or UPI account is a strong scam warning.",
+      "hi": "व्यक्तिगत बैंक या यूपीआई खाते में पैसे माँगना घोटाले का बड़ा संकेत है।"
+    }
+  },
+  {
+    "id": "sebi_claim",
+    "patterns": [
+      "sebi registered",
+      "sebi approved",
+      "sebi certified",
+      "government approved",
+      "सेबी रजिस्टर्ड",
+      "सेबी अप्रूव्ड",
+      "सरकार द्वारा मान्यता"
+    ],
+    "weight": 30,
+    "reason": {
+      "en": "Anyone can claim to be SEBI registered. Always verify the registration number yourself on the SEBI website.",
+      "hi": "कोई भी सेबी रजिस्टर्ड होने का दावा कर सकता है। नंबर खुद सेबी की वेबसाइट पर जाँचें।"
+    }
+  },
+  {
+    "id": "educational_content",
+    "patterns": [
+      "for educational purposes",
+      "not financial advice",
+      "do your own research",
+      "risk of loss",
+      "markets can go down",
+      "केवल शिक्षा के लिए",
+      "वित्तीय सलाह नहीं",
+      "नुकसान का जोखिम"
+    ],
+    "weight": -15,
+    "reason": {
+      "en": "Mentions of risk and educational intent are common in legitimate learning content.",
+      "hi": "जोखिम और शैक्षिक उद्देश्य का उल्लेख अक्सर सही शिक्षण सामग्री में होता है।"
+    }
+  }
+]

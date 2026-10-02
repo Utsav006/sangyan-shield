@@ -1,0 +1,58 @@
+{
+  "questions": [
+    {
+      "id": "q_unknown_sender",
+      "icon": "person_unknown",
+      "weight_yes": 20,
+      "text": {
+        "en": "Did this message come from someone you do not know personally?",
+        "hi": "क्या यह संदेश किसी ऐसे व्यक्ति से आया है जिसे आप व्यक्तिगत रूप से नहीं जानते?"
+      }
+    },
+    {
+      "id": "q_guaranteed_profit",
+      "icon": "money_bag",
+      "weight_yes": 35,
+      "text": {
+        "en": "Did they promise guaranteed or fixed profits?",
+        "hi": "क्या उन्होंने पक्के या गारंटीड मुनाफे का वादा किया?"
+      }
+    },
+    {
+      "id": "q_send_money_today",
+      "icon": "clock",
+      "weight_yes": 30,
+      "text": {
+        "en": "Are they asking you to send money today or right now?",
+        "hi": "क्या वे आज ही या अभी पैसे भेजने को कह रहे हैं?"
+      }
+    },
+    {
+      "id": "q_otp_or_pin",
+      "icon": "lock",
+      "weight_yes": 45,
+      "text": {
+        "en": "Did they ask for an OTP, PIN, or bank password?",
+        "hi": "क्या उन्होंने ओटीपी, पिन या बैंक पासवर्ड माँगा?"
+      }
+    },
+    {
+      "id": "q_personal_account",
+      "icon": "bank",
+      "weight_yes": 35,
+      "text": {
+        "en": "Do they want money in a personal UPI or bank account (not a known company)?",
+        "hi": "क्या वे पैसे व्यक्तिगत यूपीआई या बैंक खाते में चाहते हैं (जानी-मानी कंपनी नहीं)?"
+      }
+    },
+    {
+      "id": "q_secret_group",
+      "icon": "group",
+      "weight_yes": 25,
+      "text": {
+        "en": "Is this a secret tip group or private WhatsApp/Telegram channel?",
+        "hi": "क्या यह कोई गुप्त टिप ग्रुप या निजी व्हाट्सऐप/टेलीग्राम चैनल है?"
+      }
+    }
+  ]
+}

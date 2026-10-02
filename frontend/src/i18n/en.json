@@ -1,0 +1,62 @@
+{
+  "appName": "Sangyan Shield",
+  "tagline": "For the moment you can't copy-paste.",
+  "languageToggle": "हिंदी",
+  "home": {
+    "title": "What do you want to check?",
+    "subtitle": "Before any money moves, check if it is a scam.",
+    "messageCheck": "Message Check",
+    "messageCheckDesc": "Paste a WhatsApp or SMS message",
+    "guidedMode": "Guided Mode",
+    "guidedModeDesc": "Answer 6 simple yes/no questions",
+    "recovery": "Recovery Path",
+    "recoveryDesc": "I already sent money — what now?"
+  },
+  "message": {
+    "title": "Paste the message",
+    "placeholder": "Paste the WhatsApp, SMS, or tip-group text here…",
+    "submit": "Check for scam",
+    "checking": "Checking…",
+    "error": "Could not reach the server. Is the backend running on port 5000?"
+  },
+  "guided": {
+    "title": "Guided Mode",
+    "progress": "Question {{current}} of {{total}}",
+    "yes": "Yes",
+    "no": "No",
+    "speak": "Read aloud",
+    "submitting": "Getting result…",
+    "error": "Could not reach the server. Is the backend running on port 5000?"
+  },
+  "verdict": {
+    "title": "Your result",
+    "risk": {
+      "high": "High risk — likely a scam",
+      "careful": "Be careful",
+      "looks_okay": "Looks okay — still verify",
+      "cant_tell": "Can't tell yet"
+    },
+    "why": "Why we say this",
+    "nextSteps": "What to do next",
+    "couldNotVerify": "Could not verify",
+    "speak": "Hear this result",
+    "backHome": "Back to home",
+    "checkAnother": "Check another message"
+  },
+  "recovery": {
+    "title": "If you already sent money",
+    "subtitle": "Stay calm. Act step by step.",
+    "steps": [
+      "Call your bank or UPI app fraud helpline right now and report the transaction.",
+      "Do not send any more money, even if they say it will 'unlock' or 'refund' your funds.",
+      "Save screenshots of chats, UPI IDs, phone numbers, and bank SMS.",
+      "File a complaint on the National Cyber Crime Portal: cybercrime.gov.in",
+      "Dial 1930 (India cyber fraud helpline) if money was transferred recently.",
+      "Tell a trusted family member what happened — you do not have to handle this alone."
+    ],
+    "backHome": "Back to home"
+  },
+  "header": {
+    "home": "Home"
+  }
+}
