@@ -66,10 +66,16 @@ def extract_sebi_number(text: str) -> str | None:
     Extract the first SEBI-style registration number from *text*.
 
     Returns the uppercased registration number, or None if none found.
+    Gracefully handles None, non-string, or malformed inputs.
     """
-    match = _SEBI_PATTERN.search(text)
-    if match:
-        return match.group(1).upper()
+    if not text or not isinstance(text, str):
+        return None
+    try:
+        match = _SEBI_PATTERN.search(text)
+        if match:
+            return match.group(1).upper()
+    except (TypeError, re.error) as exc:
+        log.warning("SEBI extraction failed on input: %s", exc)
     return None
 
 
@@ -85,6 +91,8 @@ def verify_sebi_registration(reg_number: str) -> dict[str, str]:
         or
         {"status": "not_found"}
     """
+    if not reg_number or not isinstance(reg_number, str):
+        return {"status": "not_found"}
     reg_number = reg_number.upper().strip()
     entry = _registry.get(reg_number)
 

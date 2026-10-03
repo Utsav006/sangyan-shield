@@ -17,8 +17,10 @@ from engine import (
     analyze_text,
     detect_language,
     find_spans,
+    ml_predict,
     score_to_risk,
 )
+from registry import extract_sebi_number, verify_sebi_registration
 
 # ---------------------------------------------------------------------------
 # Required output keys and their expected types (PRD schema)
@@ -377,3 +379,175 @@ class TestLanguageHandling:
     def test_auto_detect_english(self):
         result = analyze_text("Share OTP now")
         assert result["language"] == "en"
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 8. EDGE CASES & ROBUSTNESS (Hackathon QA Audit)
+# ═══════════════════════════════════════════════════════════════════════════
+class TestEdgeCasesAndRobustness:
+    """Critical edge-case tests added during the pre-submission QA audit.
+    These cover empty inputs, SEBI regex edge cases, ML fallback, and
+    hybrid scoring guarantees."""
+
+    # ── Empty / null input handling ────────────────────────────────────
+    def test_empty_input(self):
+        """Engine must handle empty strings safely without crashing.
+        Should return a valid 'cant_tell' response with full schema."""
+        result = analyze_text("")
+
+        assert result["risk_level"] == "cant_tell"
+        assert result["flags"] == []
+        assert result["score"] == 0
+        assert result["ml_scam_probability"] is None
+        assert result["disclaimer"] == EN_DISCLAIMER
+        assert len(result["next_steps"]) >= 1
+        # Verify full schema
+        for key in REQUIRED_KEYS:
+            assert key in result, f"Missing key '{key}' in empty input response"
+
+    def test_none_input(self):
+        """Engine must not crash on None input."""
+        result = analyze_text(None)
+
+        assert result["risk_level"] == "cant_tell"
+        assert result["flags"] == []
+        assert isinstance(result["disclaimer"], str)
+        assert len(result["disclaimer"]) > 0
+
+    def test_whitespace_only_input(self):
+        """Whitespace-only strings should be treated as empty."""
+        result = analyze_text("   \t\n  ")
+
+        assert result["risk_level"] == "cant_tell"
+        assert result["flags"] == []
+        assert result["score"] == 0
+
+    # ── SEBI extraction edge cases ────────────────────────────────────
+    def test_sebi_extraction_fake(self):
+        """Pass a message with 'INA999999999' — a number that matches the
+        SEBI format but is NOT in the registry. Assert registry_check.status
+        is 'not_found'."""
+        text = "Invest with us! SEBI registered INA999999999. Guaranteed profit!"
+        result = analyze_text(text)
+
+        assert result["registry_check"]["extracted_number"] == "INA999999999"
+        assert result["registry_check"]["status"] == "not_found"
+        # Should also flag it as a fake SEBI number
+        flag_ids = {f["id"] for f in result["flags"]}
+        assert "fake_sebi_number" in flag_ids
+
+    def test_sebi_extraction_valid(self):
+        """Pass a message with a valid demo SEBI number (INA000012345)
+        and assert that the registry lookup returns 'verified'."""
+        text = "We are SEBI registered under INA000012345 for investment advisory."
+        result = analyze_text(text)
+
+        assert result["registry_check"]["extracted_number"] == "INA000012345"
+        assert result["registry_check"]["status"] == "verified"
+        # Should NOT flag it as fake
+        flag_ids = {f["id"] for f in result["flags"]}
+        assert "fake_sebi_number" not in flag_ids
+
+    def test_sebi_extraction_no_number(self):
+        """If no SEBI number is in the text, registry_check should be
+        'no_number_detected'."""
+        result = analyze_text("Hello, just a normal message.")
+        assert result["registry_check"]["status"] == "no_number_detected"
+        assert result["registry_check"]["extracted_number"] is None
+
+    def test_sebi_extraction_emojis(self):
+        """Emojis and special characters must not crash the SEBI regex."""
+        text = "🚀🔥 Invest now!! 💰 Get rich 🤑 INA999999999 🎉"
+        result = analyze_text(text)
+
+        assert result["registry_check"]["extracted_number"] == "INA999999999"
+        assert result["registry_check"]["status"] == "not_found"
+
+    def test_sebi_extraction_none_input(self):
+        """extract_sebi_number must handle None without crashing."""
+        assert extract_sebi_number(None) is None
+
+    def test_sebi_extraction_empty_string(self):
+        """extract_sebi_number must handle empty string."""
+        assert extract_sebi_number("") is None
+
+    def test_sebi_extraction_numeric_input(self):
+        """extract_sebi_number must handle non-string input."""
+        assert extract_sebi_number(12345) is None
+
+    def test_sebi_verification_none_input(self):
+        """verify_sebi_registration must handle None without crashing."""
+        result = verify_sebi_registration(None)
+        assert result["status"] == "not_found"
+
+    def test_sebi_verification_empty_string(self):
+        """verify_sebi_registration must handle empty string."""
+        result = verify_sebi_registration("")
+        assert result["status"] == "not_found"
+
+    # ── Hybrid scoring guarantees ─────────────────────────────────────
+    def test_hybrid_scoring(self):
+        """Ensure ml_scam_probability exists in the output dictionary
+        and, when present, is a float between 0 and 100."""
+        result = analyze_text("Guaranteed returns! Send OTP immediately!")
+
+        assert "ml_scam_probability" in result
+        prob = result["ml_scam_probability"]
+        # prob can be None if ML model is not loaded — that's valid
+        if prob is not None:
+            assert isinstance(prob, (int, float)), (
+                f"ml_scam_probability should be numeric, got {type(prob)}"
+            )
+            assert 0.0 <= prob <= 100.0, (
+                f"ml_scam_probability={prob} is outside [0, 100]"
+            )
+
+    def test_hybrid_scoring_with_benign_text(self):
+        """Even for benign text, ml_scam_probability must be a valid
+        numeric or None."""
+        result = analyze_text("The stock market closed higher today.")
+        prob = result["ml_scam_probability"]
+        if prob is not None:
+            assert isinstance(prob, (int, float))
+            assert 0.0 <= prob <= 100.0
+
+    def test_registry_check_in_output_schema(self):
+        """registry_check must always be present in analyze_text output."""
+        result = analyze_text("Some message to analyze")
+        assert "registry_check" in result
+        assert "status" in result["registry_check"]
+
+    # ── ML fallback behaviour ─────────────────────────────────────────
+    def test_ml_predict_returns_float_or_none(self):
+        """ml_predict must return a float in [0,1] or None — never crash."""
+        prob = ml_predict("Guaranteed returns! Act now!")
+        if prob is not None:
+            assert isinstance(prob, float)
+            assert 0.0 <= prob <= 1.0
+
+    def test_ml_predict_empty_string(self):
+        """ml_predict must not crash on empty string."""
+        prob = ml_predict("")
+        # None (model unavailable) or a float — either is acceptable
+        assert prob is None or isinstance(prob, float)
+
+    # ── Unicode / special character resilience ────────────────────────
+    def test_unicode_input(self):
+        """Engine must not crash on heavy Unicode content."""
+        text = "مرحبا كيف حالك 你好世界 🔥🚀💰"
+        result = analyze_text(text)
+        assert result["risk_level"] in VALID_RISK_LEVELS
+        assert isinstance(result["disclaimer"], str)
+
+    def test_very_long_input(self):
+        """Engine must handle large inputs without crashing."""
+        text = "Guaranteed returns! " * 500
+        result = analyze_text(text)
+        assert result["risk_level"] in VALID_RISK_LEVELS
+        assert len(result["flags"]) >= 1
+
+    def test_newlines_and_tabs(self):
+        """Newlines and tabs in input must not break anything."""
+        text = "Guaranteed\treturns\n\nShare OTP\nnow"
+        result = analyze_text(text)
+        assert result["risk_level"] in VALID_RISK_LEVELS

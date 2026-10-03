@@ -237,6 +237,21 @@ def analyze_text(text: str, language: str | None = None) -> dict:
     2. Run ML model for scam probability.
     3. Blend both signals into a final risk level.
     """
+    # ── Guard: empty / None / non-string input ─────────────────────────
+    if not text or not isinstance(text, str) or not text.strip():
+        lang = language if language in ("en", "hi") else "en"
+        return {
+            "risk_level": "cant_tell",
+            "language": lang,
+            "flags": [],
+            "could_not_verify": [],
+            "next_steps": NEXT_STEPS["cant_tell"][lang],
+            "disclaimer": DISCLAIMER[lang],
+            "score": 0,
+            "ml_scam_probability": None,
+            "registry_check": {"extracted_number": None, "status": "no_number_detected"},
+        }
+
     try:
         rules = load_rules()
     except RuntimeError:
@@ -271,11 +286,16 @@ def analyze_text(text: str, language: str | None = None) -> dict:
                 if lang == "en"
                 else f"नकली सेबी पंजीकरण संख्या: {sebi_number} सेबी रजिस्ट्री में नहीं है।"
             )
+            # Safely locate the span — re.search can theoretically return
+            # None if the extracted number was normalised (e.g. uppercased)
+            # and the original text uses a different case variant.
+            span_match = re.search(re.escape(sebi_number), text, re.IGNORECASE)
+            span = list(span_match.span()) if span_match else [0, 0]
             flags.append(
                 {
                     "id": "fake_sebi_number",
                     "reason": fake_reason,
-                    "span": list(re.search(re.escape(sebi_number), text, re.IGNORECASE).span()),
+                    "span": span,
                 }
             )
             score += 50  # Critical penalty — very likely scam
@@ -322,7 +342,11 @@ def analyze_text(text: str, language: str | None = None) -> dict:
     ) > 0]
 
     # ── ML classification ──────────────────────────────────────────────
-    ml_prob = ml_predict(text)
+    try:
+        ml_prob = ml_predict(text)
+    except Exception:
+        log.exception("ML prediction failed unexpectedly — falling back to rules-only")
+        ml_prob = None
 
     # ── Hybrid blending ────────────────────────────────────────────────
     risk_level = _hybrid_risk(score, len(positive_flags), ml_prob)

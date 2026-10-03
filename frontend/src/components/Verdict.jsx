@@ -99,11 +99,11 @@ export default function Verdict() {
 
   if (!result) return null
 
-  const riskClass = RISK_CLASS[result.risk_level] || RISK_CLASS.cant_tell
-  const riskIcon = RISK_ICON[result.risk_level] || RISK_ICON.cant_tell
+  const riskClass = RISK_CLASS[result?.risk_level] || RISK_CLASS.cant_tell
+  const riskIcon = RISK_ICON[result?.risk_level] || RISK_ICON.cant_tell
   const riskLabel =
-    t.verdict.risk[result.risk_level] || result.risk_level
-  const mlProb = result.ml_scam_probability
+    t.verdict.risk[result?.risk_level] || result?.risk_level || 'Unknown'
+  const mlProb = result?.ml_scam_probability ?? null
 
   return (
     <main className={`page verdict-page ${riskClass}`}>
@@ -131,7 +131,7 @@ export default function Verdict() {
         ) : null}
       </div>
 
-      <RegistryBadge registryCheck={result.registry_check} t={t} />
+      <RegistryBadge registryCheck={result?.registry_check} t={t} />
 
       <button
         type="button"

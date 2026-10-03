@@ -47,26 +47,31 @@ export default function MessageInput() {
 
   // ── Read shared text from URL query params ────────────────────────
   useEffect(() => {
-    const sharedText = searchParams.get('text') || ''
-    const sharedTitle = searchParams.get('title') || ''
-    const sharedUrl = searchParams.get('url') || ''
+    try {
+      const sharedText = searchParams.get('text') ?? ''
+      const sharedTitle = searchParams.get('title') ?? ''
+      const sharedUrl = searchParams.get('url') ?? ''
 
-    // Combine all parts (WhatsApp typically sends text + url)
-    const parts = [sharedTitle, sharedText, sharedUrl].filter(Boolean)
-    const combined = parts.join('\n').trim()
+      // Combine all parts (WhatsApp typically sends text + url)
+      const parts = [sharedTitle, sharedText, sharedUrl].filter(Boolean)
+      const combined = parts.join('\n').trim()
 
-    if (combined) {
-      setText(combined)
+      if (combined) {
+        setText(combined)
 
-      // Clean the URL so a page refresh won't re-trigger
-      setSearchParams({}, { replace: true })
+        // Clean the URL so a page refresh won't re-trigger
+        setSearchParams({}, { replace: true })
 
-      // Auto-submit after a brief delay so the user sees the textarea fill
-      if (!autoSubmitDone.current) {
-        autoSubmitDone.current = true
-        const timer = setTimeout(() => submitText(combined), 600)
-        return () => clearTimeout(timer)
+        // Auto-submit after a brief delay so the user sees the textarea fill
+        if (!autoSubmitDone.current) {
+          autoSubmitDone.current = true
+          const timer = setTimeout(() => submitText(combined), 600)
+          return () => clearTimeout(timer)
+        }
       }
+    } catch (err) {
+      // Malformed URL params should never crash the app
+      console.warn('Failed to parse share params:', err)
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
