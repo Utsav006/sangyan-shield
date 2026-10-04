@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useLanguage } from '../LanguageContext'
 
-const API_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/analyze`
+const API_URL = `${import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5000`}/api/analyze`
 
 export default function MessageInput() {
   const { t, language } = useLanguage()

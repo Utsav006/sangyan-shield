@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../LanguageContext'
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+const API_BASE = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5000`
 const QUESTIONS_URL = `${API_BASE}/api/guided/questions`
 const SUBMIT_URL = `${API_BASE}/api/guided`
 
