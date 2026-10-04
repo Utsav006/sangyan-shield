@@ -281,6 +281,16 @@ def verify_sebi_registration(reg_number: str) -> dict[str, str]:
     # ── Try live lookup first ─────────────────────────────────────────
     try:
         result = verify_sebi_realtime(reg_number)
+        
+        # HACKATHON DEMO FIX: If the live SEBI portal says "Not Found", 
+        # it might just be one of our mock demo IDs (e.g., INA000012345).
+        # Check the offline registry as a secondary fallback before definitively failing.
+        if result.get("status") == "not_found":
+            offline_result = _verify_offline(reg_number)
+            if offline_result.get("status") == "verified":
+                log.info("Mock ID %s verified via offline registry fallback", reg_number)
+                return offline_result
+
         return result
     except Exception:
         # Network failure — fall through to offline
